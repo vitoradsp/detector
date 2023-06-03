@@ -7,14 +7,22 @@ import numpy as np
 import cv2
 from io import BytesIO
 from urllib.request import urlopen
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
+
 
 class RecebedorViewSet(viewsets.ModelViewSet):
     queryset = Recebedor.objects.all()
     serializer_class = RecebedorSerializer
+
     def create(self, request):
         if request.method == 'POST':
+            user = request.user
             imgp = Image.open(request.FILES['img'])
-            logo_path = urlopen('https://lh3.googleusercontent.com/pw/AMWts8ANE384tAfx5LraQeLwo6kCKeXNX6vq1Yr1w4gJ1b0eosTdwe6UGJl6Ka9aijhq4ufyEWosvkKgmJsDtoriJ7isW8TzOhzet6W4fZcQwmiYEkMKBntuizF665EGQVLRRCbxLTn2io4CBCXDBAuycwIX7rbfzXJ81E_2clYE1CwfU9WKDtKKNelv10JPKUMWMJM3qy5RyDR4yOr0ZB94IUpKnOoeo0iJ4HjnulBEa1VnVORc1jhsfesSDf-F-jJ-kbaSCWjilYjC0xXj31UTxlChJxNGsCuXh1wvspKHjaUjYASx5U2kgs1wPINXaFQEIRVjjwrjZOfBsEQnZ9jOSK1FUE1zCaRjJHK-9QkU1qGTxxd6InEiNSfnC6UorYQNYiDUJlbHIYO0zzxfxhlMJPEz8sdRUuAqp3yGW8Lnjl2Ei9sqPSCq31oBYqr5eUJwQa7rQqFgE6l_9bx4e20q_ZBsszhauLl0TGBpwMgh1UmfGAwTe90WGzYmQjG7owkad_Q6q2-BHDrIQ3c8CTY4tK8N4WXJ0DJf13NdrkGWw8YESwvnCeQQq-bsNxjsTPjlITNFi-yH5axDd2frc-EeNKof7CURzrDCl3kg_rlrpm3PTYYvaFnp2EitNE8j81bITay2Tyd-JGn28bZ6-gW2CKq6TSargABV5N9i8atstRR9ZTprkK_QvFCgTjwIRlvRFKAqbImcaJ1syOJyVT6ycqOv5zQpBem1XyZsGFjo-WGaJcPUtvOfsLbh0Q2PGfJq00c7p9tZF7IBXAaEX4S7T52nCAzhjOSlbb5rYaeS_vTqIRRSO08chLQIgp8ieeg6nmNbjYeNWuJQ3mii-5OADdPpuzRs8IsDSgMXbjlGund9vADAqKe2nyGLK3pmvyTjoXTTYTpB3TonSoJG3kBCuJVWwYuS-5ot347-bEY5scmTt1Bg1W8aRlCuGUMtWW0sfZxv3wExytJAbcne2jrO50YkgS5KNxbY4bSRJZc0VbmIjyBZhLDtXmu3aAcWyHaEK2JRU_gU6iaBZmgeLnSJEcpECrcFxBLG0CUeB_hG44nBLMx0ik9Oxws1vTwPIFaIP3M_RL6JCdy43uVC1HyDpKIUdY7_bh7BsV6-V2IEJ1XdkHMD0tp_HV0jOFtrjTqZ-AhNLCKe3U0lBQ=w176-h34-s-no?authuser=0')
+            '''logo_path = urlopen('https://lh3.googleusercontent.com/pw/AJFCJaXOEgt3camMAEgkBalkOLOQa8DYPFYyrXTdB6hJ5rKX_LJN93Y97cpa0VlQEEFf5W2aHoESwBnqqCshypIVMR6diUjli8aR14SN-nDj_Y9GJWxgJ7vupAuCkGTk7h1k57apztADi1ZMDJXHsMvxKVeaMIferQShckiCd2b9TzR_44vwYeHGEjOcYV88FQ7SPGeInP6y_My7PXrDKVS4XQeBU2gI_am0iDclF7AfZhADFZQsjcxRMhss6Q3dgUgTRQZxHsxBOmAhsD5jIp8NeP7ZPs6Y3hQfpS_CqOY4fIsWAc-0OoNARBmWRnY6BvWUHc9pArUZ-M-Z5WokIZmAuRpKXbmhsW0f2tr5kjdeEoSjEBbSdJApltL-CiqPx2wjw5JH5SDEFtIG4CV9p4w_MDMV-61EiMHeI33mJDYuFinLWiKNJk_wt702AzrT1wzT5Z_9H-UykTa5FJJ5m_zIaFPE8HqGyQ76mxX1RyyTR64OAnUUA39igGVEdfO9c3bmJtqyD47WSImpejXqsZYE4NLZYHtFz9Zz0AV_q4JYKfpAblJou7Awox_XA3cvIV66cKQV2CRcI7ZpGOOruCkFO6fkSWxBtOGe8bkxrYtrh5f4HJXXd7Pm89yDFtihJLbqTfu__joR6yonxVs7Y-4og-jQ3AKiF5Ty8ynViAOpWYQdsNjiyKyJpx-YiDiYofuHM2tDOAdAmfBMVl4DcnqYZA31x0XA_DLQRfeCxtPcVCwVP9tQjBIGvhFHICEQtEq1Nxh53mJO1ZGsTiivkG5VaAZD8wcDdXnGhwHeAJdF9skr5nJLu_X5nRyeFZRC4vD_Xy5NEX_NQxXWYkTB_iUpvZ9r8-Nojcq8Wp-LLgT9xul_ls1FaKw-tqn7fXtt9UC8FrmMI8dbKSHhq4XNs7hSYizNX4-MkkbqCpGRMH6dNLwFLOg1powNThuQQi1T7UYc3X3qEEKEYxXtquJdogJIsy0QZT0aXoLCA0W0qmkjqIFCizgtJa8eq59hdmILM07vSorQauRKb5TW6BO2i3nmY_e8e1CwZg3fhv5kJEUqCsGGPoQuS4L_3jQiORHvcpNNJHXkZliC2zgk8g1xZr3XtIFl_oF_DdCm9_zh9m4YCjDtKbvpDQ3bSxM8LO5uON_Nc_QPfnxTDAcDZg=w176-h34-s-no?authuser=0')'''
+            logo_path = urlopen('https://i.imgur.com/wzTpTHg.png')
             logo_data = logo_path.read()
             logo_arr = np.array(bytearray(logo_data), dtype=np.uint8)
             img_bin = BytesIO()
