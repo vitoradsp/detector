@@ -29,20 +29,17 @@ class RecebedorViewSet(viewsets.ModelViewSet):
             imgp.save(img_bin, format='PNG')
             img_data = img_bin.getvalue()
             imgf = cv2.imdecode(np.frombuffer(img_data, np.uint8), cv2.IMREAD_GRAYSCALE)
-            mainp = cv2.imdecode(logo_arr, 0)
+            mainp = cv2.imdecode(logo_arr, cv2.IMREAD_GRAYSCALE)
             template2 = imgf.copy()
             w,h = mainp.shape[::-1]
             result = cv2.matchTemplate(template2, mainp, cv2.TM_CCOEFF_NORMED)
-            threshold = 0.9
+            threshold = 0.6
             location = np.where(result >= threshold)
             for pt in zip(*location[::-1]):
                 loc = cv2.rectangle(template2, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
             flag = False
             if np.amax(result) > threshold:
                 flag = True
-                cv2.imshow('img', loc)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
             if flag == True:
                 return Response('Dectectado')
             else:
