@@ -10,13 +10,14 @@ from urllib.request import urlopen
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
+from django.contrib import auth
+from django.contrib.auth import login
 
 
 class RecebedorViewSet(viewsets.ModelViewSet):
     queryset = Recebedor.objects.all()
     serializer_class = RecebedorSerializer
-
+    @method_decorator(login_required)
     def create(self, request):
         if request.method == 'POST':
             user = request.user
@@ -44,3 +45,4 @@ class RecebedorViewSet(viewsets.ModelViewSet):
                 return Response('Dectectado')
             else:
                 return Response('Nada')
+

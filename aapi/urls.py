@@ -7,7 +7,9 @@ router = routers.DefaultRouter()
 
 router.register(r'recebedors', RecebedorViewSet)
 
+
+
 urlpatterns = [
     path("", include(router.urls)),
-    path('api/<int:pk>/', views.RecebedorViewSet.as_view({'get':'__all__'}), name='pics')
+    path('api/<int:pk>/', views.RecebedorViewSet.as_view({'get':'__all__'}), name='pics'),
 ]
